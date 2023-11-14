@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Signup</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Add the logo with an img element -->
+<img src="https://static.wixstatic.com/media/df8d77_165c8519be464c77bbfbf289c79c2892~mv2.png/v1/fill/w_100,h_100,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/AskPeter_Logo-Circle.png"
+alt="Company Logo" style="display: block; margin: 1px auto 0; width: 150px; height: 150px;">
+        <h2>Signup</h2>
+        <form action="/signup" method="post">
+            <label for="email">Email:</label>
+            <input type="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" required>
+
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" name="confirm_password" required>
+
+            <button type="submit">Signup</button>
+        </form>
+        <p>Already have an account? <a href="{{ url_for('index') }}">Login here</a></p>
+    </div>
+</body>
+</html>
