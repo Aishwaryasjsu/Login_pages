@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_bcrypt import Bcrypt
 from flask import session
 import mysql.connector
+# import pyodbc
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -14,7 +15,12 @@ db_config = {
     'database': 'reclogin',
 }
 
-# Create a connection to the database
+# Microsoft SQL Server ODBC Connection String
+# connection_string = 'Driver={ODBC Driver 18 for SQL Server};Server=adp-talentlytics.database.windows.net;Database=talentlytics;Uid=adp-talentlytics;Pwd=AskPeter#2023;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60;'
+# conn = pyodbc.connect(connection_string)
+# cursor = conn.cursor()
+
+# # Create a connection to the database for mysql
 conn = mysql.connector.connect(**db_config)
 cursor = conn.cursor()
 
@@ -82,6 +88,33 @@ def welcome():
         return render_template('welcome.html', email=session['email'])
     else:
         return redirect(url_for('index'))
+    
+@app.route('/forgot_password')
+def forgot_password():
+    return render_template('forgot_password.html')
+
+@app.route('/reset_password', methods=['POST'])
+def reset_password():
+    try:
+        if request.method == 'POST':
+            email = request.form['email']
+            new_password = request.form['new_password']
+            confirm_password = request.form['confirm_password']
+
+            if new_password == confirm_password:
+                # Update the password in the database (simplified for demonstration)
+                hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+                cursor.execute('UPDATE userdetails SET password=%s WHERE email_id=%s', (hashed_password, email))
+                conn.commit()
+
+                flash("Password successfully reset. You can now log in with your new password.", 'info')
+                return redirect(url_for('index'))
+            else:
+                flash("Passwords do not match. Please try again.", 'error')
+                return redirect(url_for('forgot_password'))
+    except Exception as e:
+        print("Error during password reset:", str(e))
+        return str(e)
 
 if __name__ == '__main__':
     app.secret_key = 'supersecretkey'
