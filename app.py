@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_bcrypt import Bcrypt
 from flask import session
 import mysql.connector
-# import pyodbc
+import pyodbc
 from dotenv import load_dotenv 
 import os
 
@@ -13,21 +13,21 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 # MySQL Database Configuration
-db_config = {
-    'host': os.getenv('DB_HOST'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'database': os.getenv('DB_DATABASE'),
-}
+# db_config = {
+#     'host': os.getenv('DB_HOST'),
+#     'user': os.getenv('DB_USER'),
+#     'password': os.getenv('DB_PASSWORD'),
+#     'database': os.getenv('DB_DATABASE'),
+# }
 
 # Microsoft SQL Server ODBC Connection String
-# connection_string = f"Driver={os.getenv('DB_DRIVER')};Server={os.getenv('DB_SERVER')};Database={os.getenv('DB_NAME')};Uid={os.getenv('DB_UID')};Pwd={os.getenv('DB_PWD')};Encrypt={os.getenv('DB_ENCRYPT')};TrustServerCertificate={os.getenv('DB_TRUST_SERVER_CERTIFICATE')};Connection Timeout={os.getenv('DB_CONNECTION_TIMEOUT')}"
-# conn = pyodbc.connect(connection_string)
-# cursor = conn.cursor()
+connection_string = f"Driver={os.getenv('DB_DRIVER')};Server={os.getenv('DB_SERVER')};Database={os.getenv('DB_NAME')};Uid={os.getenv('DB_UID')};Pwd={os.getenv('DB_PWD')};Encrypt={os.getenv('DB_ENCRYPT')};TrustServerCertificate={os.getenv('DB_TRUST_SERVER_CERTIFICATE')};Connection Timeout={os.getenv('DB_CONNECTION_TIMEOUT')}"
+conn = pyodbc.connect(connection_string)
+cursor = conn.cursor()
 
 # # Create a connection to the database for mysql
-conn = mysql.connector.connect(**db_config)
-cursor = conn.cursor()
+# conn = mysql.connector.connect(**db_config)
+# cursor = conn.cursor()
 
 # Routes
 @app.route('/')
@@ -46,7 +46,7 @@ def login():
             password = request.form['password']
 
             # Check credentials in the database
-            cursor.execute('SELECT * FROM userdetails WHERE email_id=%s', (email,))
+            cursor.execute('SELECT * FROM userdetails WHERE email_id=?', (email,))
             user = cursor.fetchone()
 
             if user and bcrypt.check_password_hash(user[1], password):
@@ -76,7 +76,7 @@ def signup():
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
             # Insert new user into the database
-            cursor.execute('INSERT INTO userdetails (email_id, password) VALUES (%s, %s)', (email, hashed_password))
+            cursor.execute('INSERT INTO userdetails (email_id, password) VALUES (?, ?)', (email, hashed_password))
             conn.commit()
 
             return render_template('login.html')
@@ -109,7 +109,7 @@ def reset_password():
             if new_password == confirm_password:
                 # Update the password in the database (simplified for demonstration)
                 hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
-                cursor.execute('UPDATE userdetails SET password=%s WHERE email_id=%s', (hashed_password, email))
+                cursor.execute('UPDATE userdetails SET password=? WHERE email_id=?', (hashed_password, email))
                 conn.commit()
 
                 flash("Password successfully reset. You can now log in with your new password.", 'info')
