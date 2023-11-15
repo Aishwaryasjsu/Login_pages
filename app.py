@@ -3,20 +3,25 @@ from flask_bcrypt import Bcrypt
 from flask import session
 import mysql.connector
 # import pyodbc
+from dotenv import load_dotenv 
+import os
+
+# Load environment variables from the .env file
+load_dotenv()
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 # MySQL Database Configuration
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'root',
-    'database': 'reclogin',
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_DATABASE'),
 }
 
 # Microsoft SQL Server ODBC Connection String
-# connection_string = 'Driver={ODBC Driver 18 for SQL Server};Server=adp-talentlytics.database.windows.net;Database=talentlytics;Uid=adp-talentlytics;Pwd=AskPeter#2023;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=60;'
+# connection_string = f"Driver={os.getenv('DB_DRIVER')};Server={os.getenv('DB_SERVER')};Database={os.getenv('DB_NAME')};Uid={os.getenv('DB_UID')};Pwd={os.getenv('DB_PWD')};Encrypt={os.getenv('DB_ENCRYPT')};TrustServerCertificate={os.getenv('DB_TRUST_SERVER_CERTIFICATE')};Connection Timeout={os.getenv('DB_CONNECTION_TIMEOUT')}"
 # conn = pyodbc.connect(connection_string)
 # cursor = conn.cursor()
 
